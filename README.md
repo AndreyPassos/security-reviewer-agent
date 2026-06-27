@@ -107,7 +107,7 @@ Exit code: **1** se houver finding crítico (CI), **2** em violação de guardra
 
 | Modo | Cérebro | Chave? | Como |
 |------|---------|--------|------|
-| **MCP (Claude Code)** | Claude | ❌ | `claude mcp add security-reviewer -- .venv/bin/python -m src.mcp_server` |
+| **MCP (Claude Code)** | Claude | ❌ | `claude mcp add --transport stdio security-reviewer -- .venv/bin/python -m src.mcp_server` |
 | **CLI mock** | regras | ❌ | `python -m src.cli --repo <p> --escopo full` |
 | **CLI `--llm`** | DeepSeek | ✅ | `python -m src.cli --repo <p> --escopo full --llm` |
 | **CI** | mock/DeepSeek | — | `.github/workflows/security-review.yml` |

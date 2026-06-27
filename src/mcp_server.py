@@ -6,7 +6,9 @@ exatamente o núcleo do projeto. Não precisa de DEEPSEEK_API_KEY neste modo.
 
 Registrar (requer Python >= 3.10 + `pip install -r requirements-mcp.txt`):
 
-    claude mcp add security-reviewer -- /caminho/.venv/bin/python -m src.mcp_server
+    claude mcp add --transport stdio security-reviewer -- /caminho/.venv/bin/python -m src.mcp_server
+
+Gerenciar: `claude mcp list` · `claude mcp get security-reviewer` · `claude mcp remove security-reviewer`.
 
 Uso no Claude Code: "audite o repositório X em busca de segredos e padrões
 inseguros" → o Claude chama scan_secrets/search_code/scan_deps/collect_diff,

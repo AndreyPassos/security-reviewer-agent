@@ -29,10 +29,14 @@ Requer Python ≥ 3.10.
 
 ```bash
 pip install -r requirements.txt -r requirements-mcp.txt
-claude mcp add security-reviewer -- /caminho/.venv/bin/python -m src.mcp_server
+claude mcp add --transport stdio security-reviewer -- /caminho/.venv/bin/python -m src.mcp_server
+# gerenciar: claude mcp list · claude mcp get security-reviewer · claude mcp remove security-reviewer
 ```
 
-Tools expostas: `scan_secrets`, `search_code`, `scan_deps`, `collect_diff`, `validate_report`.
+`--transport stdio` é obrigatório; tudo após `--` é o comando que sobe o servidor.
+Escopo padrão é `local` (só este projeto); use `--scope user` p/ todos os projetos ou
+`--scope project` p/ versionar em `.mcp.json`. Tools expostas: `scan_secrets`,
+`search_code`, `scan_deps`, `collect_diff`, `validate_report`.
 No Claude Code: "audite o repositório X" → o Claude chama as tools, raciocina e chama
 `validate_report` para fechar com o contrato (fail-closed volta). **Sem DEEPSEEK_API_KEY.**
 
