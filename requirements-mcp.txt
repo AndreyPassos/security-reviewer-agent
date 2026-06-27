@@ -1,0 +1,4 @@
+# Dependência extra do MODO SERVIDOR MCP (rodar dentro do Claude Code).
+# Requer Python >= 3.10. O núcleo (CLI/mock/testes) roda sem isto.
+#   pip install -r requirements.txt -r requirements-mcp.txt
+mcp>=1.2

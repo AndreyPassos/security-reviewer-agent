@@ -1,0 +1,44 @@
+name: security-review
+
+# Auditoria de segurança no PR/push usando o próprio agente (modo CLI standalone).
+# Cérebro: mock determinístico (sem chave). Opcional: DeepSeek via secret.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # histórico p/ --escopo diff
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar deps
+        run: pip install -r requirements.txt
+
+      - name: Testes de contrato (schema + MCP + BDD)
+        run: python -m pytest tests/ steps/ -q
+
+      # Auditoria determinística (sem chave). Exit 1 se houver finding crítico.
+      # `continue-on-error: true` deixa o job VERDE e só reporta — este repo tem
+      # chaves-EXEMPLO em fixtures/demo-target de propósito. No SEU projeto, remova
+      # `continue-on-error` para FALHAR o build em finding crítico.
+      - name: Auditoria de segurança (mock determinístico)
+        continue-on-error: true
+        run: python -m src.cli --repo . --escopo full --trace
+
+      # Opcional — raciocínio com DeepSeek (precisa do secret DEEPSEEK_API_KEY).
+      # Nota de segurança: passe refs não-confiáveis via env (nunca interpole
+      # ${{ ... }} direto no run: — risco de injeção em workflow).
+      # - name: Auditoria com LLM (DeepSeek)
+      #   env:
+      #     DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+      #     BASE_REF: ${{ github.base_ref }}
+      #   run: python -m src.cli --repo . --escopo diff --base-ref "origin/$BASE_REF" --llm
