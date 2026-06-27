@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/security-reviewer-agent/schemas.json",
+  "title": "SecurityReviewerAgent — Contratos executáveis",
+  "description": "Schemas canônicos do agente auditor AppSec orientado por contratos. Todo objeto que cruza fronteira de agente/tool carrega trace_id.",
+
+  "$defs": {
+    "Severidade": {
+      "type": "string",
+      "enum": ["critico", "alto", "medio", "baixo"]
+    },
+
+    "Categoria": {
+      "type": "string",
+      "enum": [
+        "auth", "secrets", "input_output", "api", "frontend",
+        "deps", "config", "concurrency", "crypto", "db", "other"
+      ]
+    },
+
+    "NivelSeguranca": {
+      "type": "string",
+      "enum": ["baixo", "medio", "alto"]
+    },
+
+    "Escopo": {
+      "type": "string",
+      "enum": ["diff", "modulo", "full"]
+    },
+
+    "AuditInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["escopo", "repo_path", "trace_id"],
+      "properties": {
+        "escopo": { "$ref": "#/$defs/Escopo" },
+        "repo_path": { "type": "string", "minLength": 1 },
+        "paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Arquivos/módulos alvo quando escopo = modulo."
+        },
+        "stack": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ex: [\"golang\", \"react-native\", \"postgres\"]. Dirige os checks por linguagem."
+        },
+        "integracoes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ex: [\"firebase\", \"aws\", \"sentry\"]."
+        },
+        "trace_id": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "ArquivoAlterado": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "status", "trace_id"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "linguagem": { "type": "string" },
+        "status": { "type": "string", "enum": ["added", "modified", "deleted"] },
+        "linhas_adicionadas": { "type": "integer", "minimum": 0 },
+        "linhas_removidas": { "type": "integer", "minimum": 0 },
+        "trace_id": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "Ocorrencia": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["arquivo", "linha", "trecho", "padrao", "trace_id"],
+      "properties": {
+        "arquivo": { "type": "string", "minLength": 1 },
+        "linha": { "type": "integer", "minimum": 1 },
+        "trecho": { "type": "string", "minLength": 1 },
+        "padrao": { "type": "string", "description": "Padrão/regex que casou." },
+        "trace_id": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "DependenciaVulneravel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pacote", "versao", "cve", "severidade", "trace_id"],
+      "properties": {
+        "pacote": { "type": "string", "minLength": 1 },
+        "versao": { "type": "string", "minLength": 1 },
+        "cve": { "type": "string", "pattern": "^CVE-[0-9]{4}-[0-9]+$" },
+        "severidade": { "$ref": "#/$defs/Severidade" },
+        "versao_corrigida": { "type": "string" },
+        "trace_id": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "SegredoDetectado": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["arquivo", "linha", "tipo", "valor_mascarado", "trace_id"],
+      "properties": {
+        "arquivo": { "type": "string", "minLength": 1 },
+        "linha": { "type": "integer", "minimum": 1 },
+        "tipo": {
+          "type": "string",
+          "description": "Ex: aws_access_key, jwt, senha, private_key, api_token."
+        },
+        "valor_mascarado": {
+          "type": "string",
+          "description": "SEMPRE mascarado. Nunca o segredo em claro. Ex: AKIA****************."
+        },
+        "trace_id": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "Finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "titulo", "categoria", "severidade",
+        "arquivo", "linha", "evidencia", "impacto", "correcao",
+        "confianca", "trace_id"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^SEC-[0-9]{3,}$" },
+        "titulo": { "type": "string", "minLength": 1 },
+        "categoria": { "$ref": "#/$defs/Categoria" },
+        "severidade": { "$ref": "#/$defs/Severidade" },
+        "arquivo": { "type": "string", "minLength": 1 },
+        "linha": { "type": "integer", "minimum": 1 },
+        "evidencia": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Trecho real do código que prova o achado. Obrigatório (anti-alucinação)."
+        },
+        "impacto": { "type": "string", "minLength": 1 },
+        "correcao": { "type": "string", "minLength": 1 },
+        "owasp": {
+          "type": "string",
+          "description": "Ex: A01:2021, API3:2023, M2:2024."
+        },
+        "confianca": { "type": "number", "minimum": 0, "maximum": 1 },
+        "trace_id": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "ResumoSeveridade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["critico", "alto", "medio", "baixo"],
+      "properties": {
+        "critico": { "type": "integer", "minimum": 0 },
+        "alto": { "type": "integer", "minimum": 0 },
+        "medio": { "type": "integer", "minimum": 0 },
+        "baixo": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "AuditReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trace_id", "escopo", "resumo", "nivel_seguranca",
+        "findings", "hitl_pendente"
+      ],
+      "properties": {
+        "trace_id": { "type": "string", "minLength": 1 },
+        "escopo": { "$ref": "#/$defs/Escopo" },
+        "resumo": { "$ref": "#/$defs/ResumoSeveridade" },
+        "top_riscos": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^SEC-[0-9]{3,}$" },
+          "description": "IDs dos findings de maior risco."
+        },
+        "nivel_seguranca": { "$ref": "#/$defs/NivelSeguranca" },
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Finding" }
+        },
+        "hitl_pendente": { "type": "boolean" },
+        "observacoes": { "type": "string" }
+      }
+    },
+
+    "PipelineState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trace_id"],
+      "properties": {
+        "trace_id": { "type": "string", "minLength": 1 },
+        "input": { "$ref": "#/$defs/AuditInput" },
+        "arquivos": { "type": "array", "items": { "$ref": "#/$defs/ArquivoAlterado" } },
+        "ocorrencias": { "type": "array", "items": { "$ref": "#/$defs/Ocorrencia" } },
+        "dependencias": { "type": "array", "items": { "$ref": "#/$defs/DependenciaVulneravel" } },
+        "segredos": { "type": "array", "items": { "$ref": "#/$defs/SegredoDetectado" } },
+        "report": { "$ref": "#/$defs/AuditReport" },
+        "hitl_pendente": { "type": "boolean" }
+      }
+    }
+  }
+}

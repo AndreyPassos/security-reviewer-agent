@@ -1,0 +1,22 @@
+{
+  "descricao": "Repositório sem vulnerabilidades conhecidas — o agente NÃO deve inventar findings.",
+  "input": {
+    "escopo": "full",
+    "repo_path": "./alvo-limpo",
+    "stack": ["golang", "react"],
+    "integracoes": [],
+    "trace_id": "trace-limpo-001"
+  },
+  "esperado": {
+    "report": {
+      "trace_id": "trace-limpo-001",
+      "escopo": "full",
+      "resumo": { "critico": 0, "alto": 0, "medio": 0, "baixo": 0 },
+      "nivel_seguranca": "alto",
+      "findings": [],
+      "top_riscos": [],
+      "hitl_pendente": false,
+      "observacoes": "Nenhum achado com evidência. Auditoria sem vulnerabilidades."
+    }
+  }
+}

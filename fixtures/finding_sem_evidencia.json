@@ -1,0 +1,22 @@
+{
+  "descricao": "Finding candidato SEM evidencia — deve ser descartado por GR-SEC01 (anti-alucinação).",
+  "finding_invalido": {
+    "id": "SEC-099",
+    "titulo": "SQL injection suspeita",
+    "categoria": "db",
+    "severidade": "alto",
+    "arquivo": "internal/db/user.go",
+    "linha": 0,
+    "evidencia": "",
+    "impacto": "Possível injeção.",
+    "correcao": "Usar prepared statements.",
+    "confianca": 0.4,
+    "trace_id": "trace-halluc-001"
+  },
+  "esperado": {
+    "descartado": true,
+    "regra": "GR-SEC01",
+    "violacao": "CONFIANCA_BAIXA",
+    "motivo": "evidencia vazia e confianca < 0,85; linha inválida (0)"
+  }
+}

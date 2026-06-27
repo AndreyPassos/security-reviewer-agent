@@ -1,0 +1,8 @@
+{
+  "name": "demo-target",
+  "version": "1.0.0",
+  "description": "Projeto de demonstração com vulnerabilidades plantadas.",
+  "dependencies": {
+    "lodash": "4.17.15"
+  }
+}
