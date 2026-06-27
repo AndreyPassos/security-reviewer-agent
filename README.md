@@ -60,8 +60,48 @@ AuditInput → Orchestrator → diff_collector
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-pytest steps/ tests/ -v
+pytest tests/ steps/ -v        # 20/20
 ```
+
+## Uso
+
+Tour narrado (apresentação) — MCP discovery, tool calls, findings, guardrails, trace_id:
+
+```bash
+python demo.py
+```
+
+Auditar um repositório — **mock determinístico** (sem chave/LLM):
+
+```bash
+python -m src.cli --repo <caminho> --escopo full
+```
+
+Com **trace** do agente no stderr + relatório JSON limpo no stdout (pipeável p/ CI):
+
+```bash
+python -m src.cli --repo <caminho> --escopo full --trace
+```
+
+**LLM real (DeepSeek)** — map-reduce sobre todo o código:
+
+```bash
+cp .env.example .env          # edite e ponha sua DEEPSEEK_API_KEY (gitignored)
+# ou: export DEEPSEEK_API_KEY=...
+python -m src.cli --repo <caminho> --escopo full --llm --trace
+```
+
+**Escopo de PR** — audita só o diff (uso de CI):
+
+```bash
+python -m src.cli --repo <caminho> --escopo diff --base-ref HEAD~1 --llm
+```
+
+Flags: `--repo` (alvo, read-only) · `--escopo diff|modulo|full` · `--base-ref` ·
+`--stack` (auto se omitido) · `--paths` · `--llm` · `--trace` · `--trace-id`.
+Exit code: **1** se houver finding crítico (CI), **2** em violação de guardrail.
+
+> Roteiro de apresentação: `docs/DEMO.md` · Referência completa num doc: `REFERENCIA.md`.
 
 ## Estado (implementado)
 
